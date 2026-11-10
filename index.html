@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="preconnect" href="https://googleapis.com">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VidScribe - Video to SEO Blog Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { midnight: '#0f172a', neonpink: '#2563eb', violet: '#1e40af', cyan: '#06b6d4' },
+          fontFamily: { display: ['Poppins', 'sans-serif'], body: ['Inter', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+  <link href="https://googleapis.com" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-gray-950 text-slate-100 font-body">
+  <!-- VidScribe mesh -->
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  </div>
+  <canvas id="bg"></canvas>
+
+  <!-- Loader -->
+  <div id="loader" class="loader hidden">
+    <div id="kinetic" class="kinetic font-display"></div>
+    <p id="stageText" class="mt-6 text-cyan text-sm tracking-widest uppercase">Initializing...</p>
+    <div class="progress mt-4"><div id="progressBar"></div></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <main class="relative z-10 max-w-[1500px] mx-auto p-4 md:p-6">
+    <header class="flex items-center justify-between mb-6">
+
+  <!-- Recreated Custom Elegant Quill & Book Logo Graphic -->
+    <div class="flex items-center gap-3">
+      <!-- Recreated Custom Elegant Quill & Book Logo Graphic -->
+      <div class="text-emerald-400 flex-shrink-0">
+        <svg xmlns="http://w3.org" viewBox="0 0 100 100" class="w-10 h-10" fill="currentColor">
+          <!-- Swooping Quill / Feather Element -->
+          <path d="M62,25 C55,23 45,28 38,36 C32,43 30,52 35,59 C37,62 42,65 47,61 C53,56 58,45 61,35 C62,32 63,27 62,25 Z" fill="#10b981"/>
+          <path d="M37,37 C44,30 52,26 60,26 C57,34 50,49 43,56 C39,60 35,57 34,53 C33,47 34,42 37,37 Z" fill="#047857" opacity="0.85"/>
+          <!-- Quill Spine/Stem -->
+          <path d="M62,25 L32,68" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Elegant Curved Open Pages Base -->
+          <path d="M34,60 C40,65 52,65 60,59 C54,63 42,63 36,58 Z" fill="#94a3b8"/>
+          <path d="M32,64 C40,70 54,70 62,63 C54,67 42,67 34,62 Z" fill="#64748b"/>
+        </svg>
+      </div>
+      
+      <!-- Text elements grouped in the exact same flex row layout -->
+      <div class="flex flex-col justify-center">
+        <h1 class="font-display font-black text-lg md:text-xl tracking-wider text-slate-100 uppercase leading-none">VidScribe</h1>
+        <span class="text-[10px] tracking-[0.25em] font-body font-bold text-emerald-400 uppercase mt-0.5">SEO AI Engine</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <div class="glass px-4 py-2 text-xs flex items-center gap-2"><span class="dot"></span><span id="statusText">Core idle</span></div>
+    </header>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+      <!-- LEFT: controls -->
+      <section class="xl:col-span-3 space-y-5">
+        <div class="glass neon p-5">
+          <h2 class="panel-title"><i data-lucide="link"></i> Video Source</h2>
+          <input id="videoUrl" type="text" placeholder="https://youtube.com/watch?v=..." value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="input" />
+          <h2 class="panel-title mt-5"><i data-lucide="mic"></i> Speaker Tone</h2>
+          <div id="toneGrid" class="grid grid-cols-1 gap-3">
+            <button class="tone active" data-tone="dev"><i data-lucide="terminal"></i><span><b>Developer Advocate</b><small>Technical, code-first</small></span></button>
+            <button class="tone" data-tone="vc"><i data-lucide="trending-up"></i><span><b>Venture Capitalist</b><small>Strategic, market-driven</small></span></button>
+            <button class="tone" data-tone="indie"><i data-lucide="coffee"></i><span><b>Indie Hacker</b><small>Casual, story-based</small></span></button>
+          </div>
+          <button id="generateBtn" class="cta mt-6"><i data-lucide="zap"></i> Generate SEO Blog</button>
+        </div>
+
+        <div class="glass neon p-5">
+          <h2 class="panel-title"><i data-lucide="workflow"></i> Pipeline</h2>
+          <ul id="pipelineList" class="space-y-2 text-sm"></ul>
+        </div>
+      </section>
+
+      <!-- CENTER: output -->
+      <section class="xl:col-span-6">
+        <div class="glass neon p-5 min-h-[70vh]">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 class="panel-title !mb-0"><i data-lucide="file-text"></i> Blog Draft</h2>
+            <div class="flex gap-2 flex-wrap">
+              <button id="copyBtn" class="chip" disabled><i data-lucide="copy"></i> Copy MD</button>
+              <button id="downloadBtn" class="chip" disabled><i data-lucide="download"></i> .md</button>
+                        <button id="download-pdf" class="chip"><i data-lucide="file-text"></i> PDF</button>
+          <button id="download-docs" class="chip"><i data-lucide="file-check"></i> Word Docs</button>
+          <button id="connect-wordpress" class="chip chip-hot"><i data-lucide="link"></i> WordPress Link</button>
+
+              <button id="publishBtn" class="chip chip-hot" disabled><i data-lucide="send"></i> Push to CMS</button>
+            </div>
+          </div>
+          <div id="metaBox" class="meta hidden"></div>
+          <article id="output" class="prose-aurora">
+            <div class="empty">
+              <i data-lucide="sparkles"></i>
+              <p>Paste a video URL, pick a tone, and launch the pipeline.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- RIGHT: SEO + links -->
+      <section class="xl:col-span-3 space-y-5">
+        <div class="glass neon p-5">
+          <h2 class="panel-title"><i data-lucide="radar"></i> SEO Competitor Blueprint</h2>
+          <div class="flex justify-center my-2">
+            <svg viewBox="0 0 120 120" class="w-40 h-40">
+              <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF2E9F"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient></defs>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+              <circle id="meterRing" cx="60" cy="60" r="50" fill="none" stroke="url(#grad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)"/>
+              <text id="meterText" x="60" y="68" text-anchor="middle" class="meter-text">--</text>
+            </svg>
+          </div>
+          <div id="seoStats" class="space-y-3 text-sm text-slate-300">
+            <p class="text-slate-500 text-xs">Run the pipeline to see keyword intelligence.</p>
+          </div>
+        </div>
+
+        <div class="glass neon p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="panel-title !mb-0"><i data-lucide="link-2"></i> Internal Link Injector</h2>
+            <button id="reinjectBtn" class="chip" disabled><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <ul id="linkHub" class="space-y-2 text-sm"><li class="text-slate-500 text-xs">No links injected yet.</li></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
